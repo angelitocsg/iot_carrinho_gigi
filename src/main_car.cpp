@@ -1,57 +1,40 @@
 #ifdef FLAG_CAR
 
 #include <Arduino.h>
+#include <MyHorn.h>
 #include <MyLights.h>
 #include <MyMotors.h>
 #include <MyReceiver.h>
 
 MyMotors motors;
 MyLights lights;
+MyHorn horn;
 void do_action(char c);
-byte message[VW_MAX_MESSAGE_LEN];
-byte msgLength = VW_MAX_MESSAGE_LEN;
-
-void setup_rf_rx()
-{
-  vw_set_rx_pin(RX_PIN);
-  vw_setup(1000);
-  vw_rx_start();
-}
 
 void setup()
 {
   Serial.begin(9600);
   Serial.println("Iniciando...");
+  pinMode(A1, OUTPUT);
+  pinMode(A2, OUTPUT);
+  pinMode(A3, OUTPUT);
   pinMode(A5, OUTPUT);
-  setup_rf_rx();
 }
 
 void loop()
 {
-  uint8_t message[VW_MAX_MESSAGE_LEN];
-  uint8_t msgLength = VW_MAX_MESSAGE_LEN;
-
-  if (vw_get_message(message, &msgLength))
-  {
-    Serial.println(message[0]);
-    Serial.println(msgLength);
-    if (msgLength == 1)
-    {
-      do_action(message[0]);
-      setup_rf_rx();
-    }
-  }
-
   while (Serial.available())
   {
     char c = (char)Serial.read();
     do_action(c);
-    setup_rf_rx();
   }
+  horn.loop();
 }
 
 void do_action(char c)
 {
+  Serial.print("Recebido: ");
+  Serial.println(c);
   switch (c)
   {
   case START:
@@ -63,11 +46,9 @@ void do_action(char c)
     motors.desliga_motores();
     break;
   case GO_FORWARD:
-    lights.acende_farol();
     motors.anda_para_frente();
     break;
   case GO_BACKWARD:
-    lights.apaga_farol();
     motors.anda_para_tras();
     break;
   case TURN_LEFT:
@@ -90,6 +71,9 @@ void do_action(char c)
     break;
   case TURBO:
     motors.turbina_motores();
+    break;
+  case HORN:
+    horn.buzinar();
     break;
   default:
     motors.desliga_motores();

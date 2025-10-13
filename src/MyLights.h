@@ -1,6 +1,9 @@
 #include <Arduino.h>
 #include <Thread.h>
 
+#define LIGHT 'g'
+#define LIGTH_PIN A5
+
 class MyLights
 {
 private:
@@ -14,13 +17,13 @@ public:
 
     void acende_farol()
     {
-        digitalWrite(A5, HIGH);
+        analogWrite(LIGTH_PIN, 230);
         statusFarol = true;
     }
 
     void apaga_farol()
     {
-        digitalWrite(A5, LOW);
+        analogWrite(LIGTH_PIN, 0);
         statusFarol = false;
     }
 };
